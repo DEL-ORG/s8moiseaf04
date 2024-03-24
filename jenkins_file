@@ -4,6 +4,8 @@ pipeline {
     parameters {
         string(name: 'GREETING', defaultValue: 'Hello', description: 'Custom greeting message')
         choice(name: 'DIRECTORY', choices: ['.', 'src', 'docs'], description: 'Directory to list')
+        booleanParam(name: 'CLEAN_UP', defaultValue: false, description: 'Perform a clean-up operation')
+        choice(name: 'FILE_TYPE', choices: ['All', '*.txt', '*.java', '*.md'], description: 'Type of files to display')
     }
 
     stages {
@@ -11,14 +13,38 @@ pipeline {
             steps {
                 script {
                     echo "${params.GREETING}, Jenkins User!"
-                    sh """
-                    if [ -d ${params.DIRECTORY} ]; then
-                        ls ${params.DIRECTORY}
-                    else
-                        echo "Directory ${params.DIRECTORY} does not exist."
-                    fi
-                    """
+                    // Display only the selected type of files
+                    if ("${params.FILE_TYPE}" == "All") {
+                        sh """
+                        if [ -d ${params.DIRECTORY} ]; then
+                            ls ${params.DIRECTORY}
+                        else
+                            echo "Directory ${params.DIRECTORY} does not exist."
+                        fi
+                        """
+                    } else {
+                        sh """
+                        if [ -d ${params.DIRECTORY} ]; then
+                            ls ${params.DIRECTORY}/${params.FILE_TYPE}
+                        else
+                            echo "Directory ${params.DIRECTORY} does not exist."
+                        fi
+                        """
+                    }
                     pwd()
+                }
+            }
+        }
+        
+        stage('Clean Up') {
+            when {
+                expression { return params.CLEAN_UP }
+            }
+            steps {
+                script {
+                    echo "Performing clean-up operations..."
+                    // Add your clean-up commands here, for demonstration:
+                    sh "echo 'Clean-up would proceed here'"
                 }
             }
         }
