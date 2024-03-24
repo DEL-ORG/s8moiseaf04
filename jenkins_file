@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'GREETING', defaultValue: 'Hello', description: 'Custom greeting message')
+        choice(name: 'DIRECTORY', choices: ['.', 'src', 'docs'], description: 'Directory to list')
+    }
+
+    stages {
+        stage('Hello') {
+            steps {
+                script {
+                    echo "${params.GREETING}, Jenkins User!"
+                    sh """
+                    if [ -d ${params.DIRECTORY} ]; then
+                        ls ${params.DIRECTORY}
+                    else
+                        echo "Directory ${params.DIRECTORY} does not exist."
+                    fi
+                    """
+                    pwd()
+                }
+            }
+        }
+    }
+}
