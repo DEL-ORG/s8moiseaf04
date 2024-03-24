@@ -2,6 +2,9 @@ pipeline {
     agent any
     
     parameters {
+        string(name: 'NAME', defaultValue: 'Jenkins User', description: 'Your name')
+        choice(name: 'OS', choices: ['Windows', 'macOS', 'Linux', 'Other'], description: 'Your primary operating system')
+        choice(name: 'GENDER', choices: ['Male', 'Female', 'Other', 'Prefer not to say'], description: 'Your gender')
         string(name: 'GREETING', defaultValue: 'Hello', description: 'Custom greeting message')
         choice(name: 'DIRECTORY', choices: ['.', 'src', 'docs'], description: 'Directory to list')
         booleanParam(name: 'CLEAN_UP', defaultValue: false, description: 'Perform a clean-up operation')
@@ -9,11 +12,18 @@ pipeline {
     }
 
     stages {
+        stage('Introduction') {
+            steps {
+                script {
+                    echo "${params.GREETING}, ${params.NAME}!"
+                    echo "Operating System: ${params.OS}"
+                    echo "Gender: ${params.GENDER}"
+                }
+            }
+        }
         stage('Hello') {
             steps {
                 script {
-                    echo "${params.GREETING}, Jenkins User!"
-                    // Display only the selected type of files
                     if ("${params.FILE_TYPE}" == "All") {
                         sh """
                         if [ -d ${params.DIRECTORY} ]; then
@@ -42,7 +52,7 @@ pipeline {
             }
             steps {
                 script {
-                    echo "Performing clean-up operations..."
+                    echo "Performing clean-up operations for ${params.NAME}..."
                     // Add your clean-up commands here, for demonstration:
                     sh "echo 'Clean-up would proceed here'"
                 }
